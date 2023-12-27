@@ -17,7 +17,7 @@ def insert_data_into_Leistung(data):
             host='localhost',        # z.B. 'localhost'
             database='PV',
             user='tom',
-            password='dexterfee123')
+            password='Passwort_geheim') #hier Passwort für die Datenbank eingaben
 
         cursor = connection.cursor()
         query = "INSERT INTO Leistung (Zeit, aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag) VALUES (NOW(), %s ,%s ,%s)"
@@ -40,7 +40,7 @@ def insert_data_into_Arbeit(data):
             host='localhost',        # z.B. 'localhost'
             database='PV',
             user='tom',
-            password='dexterfee123')
+            password='Passwort_geheim') #hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
         query = "INSERT INTO Arbeit (Zeit, Gesamtertrag,Tagesertrag,total_Netzbezug,total_Einspeisezaehler) VALUES (NOW(), %s ,%s ,%s,%s)"
@@ -65,7 +65,7 @@ def get_new_session_id():
     }
     login_payload = {
         "right": "istl",
-        "pass": "S0larfretti!"
+        "pass": "Passwort_geheim" #hier Passwort für die WebAPI des Wechselrichters eingeben 
     }
     login_response = requests.post(login_url, headers=login_headers, json=login_payload, verify=False)
     print("Login Response JSON:", login_response.text)
@@ -94,11 +94,8 @@ def get_data(sid):
     return response
 
 
-# Initialer SID-Wert
-
-sid = "hJ2UYSgefNxexRwR"
-#sid = "hJ2UYSgefNxexRwE"
-
+# Initialer random SID-Wert 
+sid = "hJ5UYSgefNxexRwP"
 counter = 0
 
 while True:
