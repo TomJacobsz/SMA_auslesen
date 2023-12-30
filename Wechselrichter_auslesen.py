@@ -1,5 +1,5 @@
 import requests
-import json
+import json 
 import urllib3
 import time
 import mysql.connector
@@ -40,7 +40,7 @@ def insert_data_into_Arbeit(data):
             host='localhost',        # z.B. 'localhost'
             database='PV',
             user='tom',
-            password='Passwort_geheim') #hier Passwort der Datenbank eingeben
+            password='Passwort_geheim') # hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
         query = "INSERT INTO Arbeit (Zeit, Gesamtertrag,Tagesertrag,total_Netzbezug,total_Einspeisezaehler) VALUES (NOW(), %s ,%s ,%s,%s)"
@@ -65,14 +65,14 @@ def get_new_session_id():
     }
     login_payload = {
         "right": "istl",
-        "pass": "Passwort_geheim" #hier Passwort für die WebAPI des Wechselrichters eingeben 
+        "pass": "Passwort_geheim" # hier Passwort für die WebAPI des Wechselrichters eingeben 
     }
     login_response = requests.post(login_url, headers=login_headers, json=login_payload, verify=False)
-    print("Login Response JSON:", login_response.text)
+    #print("Login Response JSON:", login_response.text)
     if login_response.status_code == 200:
         return login_response.json().get('result', {}).get('sid', None)
     else:
-        print("kacki")
+        print("Fehler beim Login")
     return None
 
 
@@ -99,19 +99,18 @@ sid = "hJ5UYSgefNxexRwP"
 counter = 0
 
 while True:
-    start_time = time.time() #startzeit messen
-    for _ in range(2):  # Maximal 3 Versuche
+    start_time = time.time() # startzeit messen
+    for _ in range(2):  # Maximal 2 Versuche
         response = get_data(sid)
-        print(sid)
         json_out = response.text
         try:
             data = json.loads(json_out)
             if "err" in data:
                 error_code = data["err"]
-                if error_code == 401: #session id falsch unauthorized
+                if error_code == 401: # session id falsch unauthorized
                     print("Unauthorized access. Please check your credentials.")
                     sid = get_new_session_id()
-                elif error_code == 503: #maximale session ids
+                elif error_code == 503: # maximale session ids
                     print("No more sessions available")
                     break
             else:
@@ -134,17 +133,15 @@ while True:
     # Leistungsdaten alle 5 sek in Leistungstable speichern
     insert_data_into_Leistung([aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag])
 
-
-    # Arbeitsdaten einmal pro stunde in ArbeitsTable speichern
-    counter += 1
-    if counter == 720:#720
+    counter += 1 # Arbeitsdaten einmal pro stunde in ArbeitsTable speichern
+    if counter == 720: # 720 = 60 min * 60 sek / 5 sek
         insert_data_into_Arbeit([Gesamtertrag, Tagesertrag, total_Netzbezug, total_Einspeisezaehler])
         counter = 0
 
     end_time = time.time() #Endzeit speichern
     execution_time = end_time - start_time  # Ausführungszeit berechnen
     time_to_sleep = max(5 - execution_time, 0)  # Berechnen, wie lange noch gewartet werden muss
-    time.sleep(time_to_sleep) # Wartezeit time.sleep(5) war nicht genau genug
+    time.sleep(time_to_sleep) # Wartezeit time.sleep(5) war nicht genau genug 
 
 
 
