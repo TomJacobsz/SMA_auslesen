@@ -1,2 +1,2 @@
-# SMA_auslesen
-python Skript zum Auslesen den SMA Wechselrichters und Speichern in einer SQL Datenbank
+# SMA_auslesen(Sunnyboy 5.0)
+Das folgende Python Skript liest die Leistungs und Verbrauchsdaten des Wechselrichters unserer PV-Anlage. Grundidee dieses Projektes war es, die Stromkosten unseres Elektroautos berechnen zu können. Hierfür muss man natürlich wissen wie hoch der Solarstromanteil bei der in das Auto eingespeisten Energie ist. Also wurde sich ein Strommesser (Shelly 3em) besorgt, um differenzieren zu können wann genau das Auto lädt. 
