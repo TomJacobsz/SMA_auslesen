@@ -13,7 +13,7 @@ with open(passdateipfad, 'r') as f:
 
 def read_database(query : str)->list:
     try:
-        connection = mysql.connector.connect(host="dbtommi", user="tom", password=passdata["Datenbank"]["password"], database="PV")
+        connection = mysql.connector.connect(host="dbtommi", user=passdata["Datenbank"]["user"], password=passdata["Datenbank"]["password"], database="PV")
         cursor = connection.cursor()
         cursor.execute(query)
         records = cursor.fetchall()
@@ -32,7 +32,7 @@ def insert_data_into_Shelly(Watt,Wattstunden):
             host='dbtommi',        # z.B. 'localhost'
             database='PV',
             user='tom',
-            password="dexterfee123") # hier Passwort der Datenbank eingeben
+            password=passdata["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
         query = "INSERT INTO Shelly (Zeit, Watt,Wattstunden) VALUES (NOW(), %s ,%s)"
