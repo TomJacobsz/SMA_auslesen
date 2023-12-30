@@ -136,7 +136,7 @@ def get_data(sid):
 
 
 # Passwörter und Benutzernamen auslesen
-passdateipfad = "../pass.json"
+passdateipfad = "/home/tom/pass.json"
 
 # Öffnen und Lesen der JSON-Datei
 with open(passdateipfad, 'r') as f:
@@ -191,24 +191,16 @@ while True:
     Wattstunden = Wattstunden + Watt/360
 
     insert_data_into_Shelly(Watt,Wattstunden)
-    print("Watt: " + str(Watt) + "W")
-    print("Wattstunden: " + str(Wattstunden) + "Wh")
-
-
-
-    # Leistungsdaten alle 5 sek in Leistungstable speichern
+ 
+    # Leistungsdaten alle 10 sek in Leistungstable speichern
     insert_data_into_Leistung([aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag])
 
     counter += 1 # Arbeitsdaten einmal pro stunde in ArbeitsTable speichern
-    if counter == 720: # 720 = 60 min * 60 sek / 5 sek
+    if counter == 360: # 360 = 60 min * 60 sek / 10 sek
         insert_data_into_Arbeit([Gesamtertrag, Tagesertrag, total_Netzbezug, total_Einspeisezaehler])
         counter = 0
 
     end_time = time.time() #Endzeit speichern
     execution_time = end_time - start_time  # Ausführungszeit berechnen
-    time_to_sleep = max(5 - execution_time, 0)  # Berechnen, wie lange noch gewartet werden muss
+    time_to_sleep = max(10 - execution_time, 0)  # Berechnen, wie lange noch gewartet werden muss
     time.sleep(time_to_sleep) # Wartezeit time.sleep(5) war nicht genau genug 
-
-
-
-

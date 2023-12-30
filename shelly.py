@@ -26,7 +26,7 @@ def read_database(query : str)->list:
             connection.close()
             print("MariaDB connection is closed")
 
-def insert_data_into_Shelly(Watt,Wattstunden):
+def insert_data_into_Shelly(Watt,Wattstunden : float):
     try:
         connection = mysql.connector.connect(
             host='dbtommi',        # z.B. 'localhost'
