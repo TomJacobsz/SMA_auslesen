@@ -15,10 +15,10 @@ def insert_data_into_Leistung(data):
         data[2] = 0
     try:
         connection = mysql.connector.connect(
-            host='localhost',        # z.B. 'localhost'
-            database='PV',
-            user='tom',
-            password='Passwort_geheim') #hier Passwort für die Datenbank eingaben
+            host = 'dbtommi',        # z.B. 'localhost'
+            database = 'PV',
+            user = passdata["Datenbank"]["user"],
+            password=passdata["Datenbank"]["password"]) #hier Passwort für die Datenbank eingaben
 
         cursor = connection.cursor()
         query = "INSERT INTO Leistung (Zeit, aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag) VALUES (NOW(), %s ,%s ,%s)"
@@ -38,10 +38,10 @@ def insert_data_into_Leistung(data):
 def insert_data_into_Arbeit(data):
     try:
         connection = mysql.connector.connect(
-            host='localhost',        # z.B. 'localhost'
-            database='PV',
-            user='tom',
-            password='Passwort_geheim') # hier Passwort der Datenbank eingeben
+            host ='dbtommi',        # z.B. 'localhost'
+            database ='PV',
+            user = passdata["Datenbank"]["user"],
+            password = ["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
         query = "INSERT INTO Arbeit (Zeit, Gesamtertrag,Tagesertrag,total_Netzbezug,total_Einspeisezaehler) VALUES (NOW(), %s ,%s ,%s,%s)"
@@ -62,10 +62,10 @@ def insert_data_into_Arbeit(data):
 def insert_data_into_Shelly(Watt,Wattstunden):
     try:
         connection = mysql.connector.connect(
-            host='dbtommi',        # z.B. 'localhost'
-            database='PV',
-            user='tom',
-            password=passdata["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
+            host = 'dbtommi',        # z.B. 'localhost'
+            database = 'PV',
+            user = passdata["Datenbank"]["user"],
+            password = passdata["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
         query = "INSERT INTO Shelly (Zeit, Watt,Wattstunden) VALUES (NOW(), %s ,%s)"
@@ -106,7 +106,7 @@ def get_new_session_id():
     }
     login_payload = {
         "right": "istl",
-        "pass": "Passwort_geheim" # hier Passwort für die WebAPI des Wechselrichters eingeben 
+        "pass": passdata["Wechselrichter"]["password"] # hier Passwort für die WebAPI des Wechselrichters eingeben 
     }
     login_response = requests.post(login_url, headers=login_headers, json=login_payload, verify=False)
     #print("Login Response JSON:", login_response.text)
@@ -150,7 +150,7 @@ counter = 0
 Wattstunden = float(read_database("SELECT Wattstunden FROM Shelly ORDER BY Zeit DESC LIMIT 1")[0][0])
 
 while True:
-    start_time = time.time() # startzeit messen
+    start_time = time.time() # startzeit messen 
     for _ in range(2):  # Maximal 2 Versuche
         response = get_data(sid)
         json_out = response.text
