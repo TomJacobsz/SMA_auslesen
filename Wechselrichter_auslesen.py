@@ -5,12 +5,13 @@ import time
 import mysql.connector
 from mysql.connector import Error
 from requests.auth import HTTPBasicAuth
+from datetime import datetime
 
 
 # Warnungen für unsichere HTTPS-Anfragen deaktivieren
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def insert_data_into_Leistung(data):
+def insert_data_into_Leistung(time,data):
     if data[2] == None: 
         data[2] = 0
     try:
@@ -21,8 +22,8 @@ def insert_data_into_Leistung(data):
             password=passdata["Datenbank"]["password"]) #hier Passwort für die Datenbank eingaben
 
         cursor = connection.cursor()
-        query = "INSERT INTO Leistung (Zeit, aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag) VALUES (NOW(), %s ,%s ,%s)"
-        record = (data[0],data[1],data[2])
+        query = "INSERT INTO Leistung (Zeit, aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag) VALUES (%s, %s ,%s ,%s)"
+        record = (time,data[0],data[1],data[2])
         cursor.execute(query, record)
         connection.commit()
         print("Data successfully inserted")
@@ -35,17 +36,17 @@ def insert_data_into_Leistung(data):
             print("MariaDB connection is closed")
 
 
-def insert_data_into_Arbeit(data):
+def insert_data_into_Arbeit(time,data):
     try:
         connection = mysql.connector.connect(
             host ='dbtommi',        # z.B. 'localhost'
             database ='PV',
             user = passdata["Datenbank"]["user"],
-            password = ["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
+            password = passdata["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
-        query = "INSERT INTO Arbeit (Zeit, Gesamtertrag,Tagesertrag,total_Netzbezug,total_Einspeisezaehler) VALUES (NOW(), %s ,%s ,%s,%s)"
-        record = (data[0],data[1],data[2],data[3])
+        query = "INSERT INTO Arbeit (Zeit, Gesamtertrag,Tagesertrag,total_Netzbezug,total_Einspeisezaehler) VALUES (%s, %s ,%s ,%s,%s)"
+        record = (time,data[0],data[1],data[2],data[3])
         cursor.execute(query, record)
         connection.commit()
         print("Data successfully inserted")
@@ -59,7 +60,7 @@ def insert_data_into_Arbeit(data):
             print("MariaDB connection is closed")
 
 
-def insert_data_into_Shelly(Watt,Wattstunden):
+def insert_data_into_Shelly(time,Watt,Wattstunden):
     try:
         connection = mysql.connector.connect(
             host = 'dbtommi',        # z.B. 'localhost'
@@ -68,8 +69,8 @@ def insert_data_into_Shelly(Watt,Wattstunden):
             password = passdata["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
 
         cursor = connection.cursor()
-        query = "INSERT INTO Shelly (Zeit, Watt,Wattstunden) VALUES (NOW(), %s ,%s)"
-        record = (Watt,Wattstunden)
+        query = "INSERT INTO Shelly (Zeit, Watt,Wattstunden) VALUES (%s, %s ,%s)"
+        record = (time,Watt,Wattstunden)
         cursor.execute(query, record)
         connection.commit()
         print("Data successfully inserted")
@@ -143,7 +144,7 @@ with open(passdateipfad, 'r') as f:
     passdata = json.load(f)
 
 # Initialer random SID-Wert 
-sid = "hJ5UYSgefNxexRwP"
+sid = "VFJo9AT0RyK0SCjr"
 counter = 0
 
 # laden des letzten Wattstundenwertes aus der Datenbank
@@ -161,6 +162,7 @@ while True:
                 if error_code == 401: # session id falsch unauthorized
                     print("Unauthorized access. Please check your credentials.")
                     sid = get_new_session_id()
+                    print(sid)
                 elif error_code == 503: # maximale session ids
                     print("No more sessions available")
                     break
@@ -190,14 +192,15 @@ while True:
     print(Watt)
     Wattstunden = Wattstunden + Watt/360
 
-    insert_data_into_Shelly(Watt,Wattstunden)
- 
+
     # Leistungsdaten alle 10 sek in Leistungstable speichern
-    insert_data_into_Leistung([aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag])
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    insert_data_into_Shelly(current_time,Watt,Wattstunden)
+    insert_data_into_Leistung(current_time,[aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag])
 
     counter += 1 # Arbeitsdaten einmal pro stunde in ArbeitsTable speichern
     if counter == 360: # 360 = 60 min * 60 sek / 10 sek
-        insert_data_into_Arbeit([Gesamtertrag, Tagesertrag, total_Netzbezug, total_Einspeisezaehler])
+        insert_data_into_Arbeit(current_time,[Gesamtertrag, Tagesertrag, total_Netzbezug, total_Einspeisezaehler])
         counter = 0
 
     end_time = time.time() #Endzeit speichern
