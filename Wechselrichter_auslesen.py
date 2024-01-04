@@ -144,7 +144,7 @@ with open(passdateipfad, 'r') as f:
     passdata = json.load(f)
 
 # Initialer random SID-Wert 
-sid = "VFJo9AT0RyK0SCjr"
+sid = "PFJo4AT0AyK0SCjt"
 counter = 0
 
 # laden des letzten Wattstundenwertes aus der Datenbank
