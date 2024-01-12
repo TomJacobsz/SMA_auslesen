@@ -109,7 +109,7 @@ def get_new_session_id():
         "right": "istl",
         "pass": passdata["Wechselrichter"]["password"] # hier Passwort für die WebAPI des Wechselrichters eingeben 
     }
-    login_response = requests.post(login_url, headers=login_headers, json=login_payload, verify=False)
+    login_response = requests.post(login_url, headers=login_headers, json=login_payload, verify=False,timeout=30) # timeout 30 ausprobieren
     #print("Login Response JSON:", login_response.text)
     if login_response.status_code == 200:
         return login_response.json().get('result', {}).get('sid', None)
@@ -132,7 +132,7 @@ def get_data(sid):
         "deviceSid443": f"\"{sid}\""
     }
     data = '{"destDev":[]}'
-    response = requests.post(url, headers=headers, cookies=cookies, data=data, verify=False)
+    response = requests.post(url, headers=headers, cookies=cookies, data=data, verify=False,timeout=30)# timeout 30 ausprobieren
     return response
 
 
@@ -153,7 +153,16 @@ Wattstunden = float(read_database("SELECT Wattstunden FROM Shelly ORDER BY Zeit 
 while True:
     start_time = time.time() # startzeit messen 
     for _ in range(2):  # Maximal 2 Versuche
-        response = get_data(sid)
+
+        # exception handling für timeout
+        try:
+            response = get_data(sid)
+        except requests.exceptions.Timeout:
+                print("Timeout")
+                continue
+        
+
+
         json_out = response.text
         try:
             data = json.loads(json_out)
