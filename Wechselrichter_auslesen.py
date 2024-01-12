@@ -152,36 +152,31 @@ Wattstunden = float(read_database("SELECT Wattstunden FROM Shelly ORDER BY Zeit 
 
 while True:
     start_time = time.time() # startzeit messen 
-    for _ in range(2):  # Maximal 2 Versuche
 
-        # exception handling für timeout
-        try:
-            response = get_data(sid)
-        except requests.exceptions.Timeout:
-                print("Timeout")
-                continue
-        
-
-
-        json_out = response.text
-        try:
-            data = json.loads(json_out)
-            if "err" in data:
-                error_code = data["err"]
-                if error_code == 401: # session id falsch unauthorized
-                    print("Unauthorized access. Please check your credentials.")
-                    sid = get_new_session_id()
-                    print(sid)
-                elif error_code == 503: # maximale session ids
-                    print("No more sessions available")
-                    break
-            else:
-                print("Auth true")
+    # exception handling für timeout
+    try:
+        response = get_data(sid)
+    except requests.exceptions.Timeout:
+            print("Timeout")
+            continue
+    
+    json_out = response.text
+    try:
+        data = json.loads(json_out)
+        if "err" in data:
+            error_code = data["err"]
+            if error_code == 401: # session id falsch unauthorized
+                print("Unauthorized access. Please check your credentials.")
+                sid = get_new_session_id()
+                print(sid)
+                continue # nächste schleifeniteration wenn ich die richtige sid habe
+            elif error_code == 503: # maximale session ids
+                print("No more sessions available")
                 break
 
-        except json.JSONDecodeError:
-            print("Fehler beim Parsen der JSON-Antwort")
-            break
+    except json.JSONDecodeError:
+        print("Fehler beim Parsen der JSON-Antwort")
+        break
     
     aktuelle_Einspeisung = data["result"]["0199-xxxxxA83"]["6100_40463600"]["1"][0]["val"]
     aktueller_Netzbezug = data["result"]["0199-xxxxxA83"]["6100_40463700"]["1"][0]["val"]
