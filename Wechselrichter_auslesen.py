@@ -33,7 +33,7 @@ def insert_data_into_Leistung(time,data):
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MariaDB connection is closed")
+            #print("MariaDB connection is closed")
 
 
 def insert_data_into_Arbeit(time,data):
@@ -49,7 +49,7 @@ def insert_data_into_Arbeit(time,data):
         record = (time,data[0],data[1],data[2],data[3])
         cursor.execute(query, record)
         connection.commit()
-        print("Data successfully inserted")
+        #print("Data successfully inserted")
 
     except Error as e:
         print("Error while connecting to MariaDB", e)
@@ -57,7 +57,7 @@ def insert_data_into_Arbeit(time,data):
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MariaDB connection is closed")
+            #print("MariaDB connection is closed")
 
 
 def insert_data_into_Shelly(time,Watt,Wattstunden):
@@ -73,7 +73,7 @@ def insert_data_into_Shelly(time,Watt,Wattstunden):
         record = (time,Watt,Wattstunden)
         cursor.execute(query, record)
         connection.commit()
-        print("Data successfully inserted")
+        #print("Data successfully inserted")
 
     except Error as e:
         print("Error while connecting to MariaDB", e)
@@ -81,7 +81,7 @@ def insert_data_into_Shelly(time,Watt,Wattstunden):
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MariaDB connection is closed")
+            #print("MariaDB connection is closed")
 
 
 def read_database(query : str)->list:
@@ -97,7 +97,7 @@ def read_database(query : str)->list:
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MariaDB connection is closed")
+            #print("MariaDB connection is closed")
 
 
 def get_new_session_id():
@@ -158,6 +158,7 @@ while True:
         response = get_data(sid)
     except requests.exceptions.Timeout:
             print("Timeout")
+            time.sleep(10) # 10 sekunden warten und dann nochmal versuchen
             continue
     
     json_out = response.text
