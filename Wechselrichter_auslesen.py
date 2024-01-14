@@ -158,7 +158,7 @@ while True:
         response = get_data(sid)
     except requests.exceptions.Timeout:
             print("Timeout")
-            time.sleep(10) # 10 sekunden warten und dann nochmal versuchen
+            time.sleep(20) # 20 sekunden warten wenn ich timout habe und dann nochmal versuchen
             continue
     
     json_out = response.text
@@ -194,7 +194,7 @@ while True:
     response = requests.get(url, auth=HTTPBasicAuth(username,password)).json()
 
     Watt = response["total_power"]
-    print(Watt)
+    #print(Watt)
     Wattstunden = Wattstunden + Watt/360
 
 
