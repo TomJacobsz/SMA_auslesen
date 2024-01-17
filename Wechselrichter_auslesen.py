@@ -6,7 +6,7 @@ import mysql.connector
 from mysql.connector import Error
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
-
+import logging
 
 # Warnungen für unsichere HTTPS-Anfragen deaktivieren
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -28,7 +28,7 @@ def insert_data_into_Leistung(time,data):
         connection.commit()
         #print("Data successfully inserted")
     except Error as e:
-        print("Error while connecting to MariaDB", e)
+        logger.error("insert_data_into_Leistung: %s",e)
     finally:
         if connection.is_connected():
             cursor.close()
@@ -52,7 +52,7 @@ def insert_data_into_Arbeit(time,data):
         #print("Data successfully inserted")
 
     except Error as e:
-        print("Error while connecting to MariaDB", e)
+        logger.error("insert_data_into_Arbeit error: %s", e)
     finally:
         if connection.is_connected():
             cursor.close()
@@ -76,7 +76,7 @@ def insert_data_into_Shelly(time,Watt,Wattstunden):
         #print("Data successfully inserted")
 
     except Error as e:
-        print("Error while connecting to MariaDB", e)
+        logger.error("insert_data_into_Shelly error: %s",e)
     finally:
         if connection.is_connected():
             cursor.close()
@@ -92,7 +92,7 @@ def read_database(query : str)->list:
         records = cursor.fetchall()
         return records
     except Error as e:
-        print("Error while connecting to MariaDB", e)
+        logger.error("read_database error: %s",e)
     finally:
         if connection.is_connected():
             cursor.close()
@@ -114,7 +114,7 @@ def get_new_session_id():
     if login_response.status_code == 200:
         return login_response.json().get('result', {}).get('sid', None)
     else:
-        print("Fehler beim Login")
+        logger.error("Fehler beim Login, responsecode =! 200") # Diese Fall sollte nur auftreten, wenn Wechselrichter offline, da responsecode in response steht
     return None
 
 
@@ -135,6 +135,24 @@ def get_data(sid):
     response = requests.post(url, headers=headers, cookies=cookies, data=data, verify=False,timeout=30)# timeout 30 ausprobieren
     return response
 
+# Erstellen Sie einen Logger und setzen Sie das Log-Level
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Erstellen Sie einen FileHandler und setzen Sie das Log-Level
+handler = logging.FileHandler('/pfad/zur/logfile/logfile.log')
+handler.setLevel(logging.INFO)
+
+# Erstellen Sie einen Formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Fügen Sie den Formatter zum Handler hinzu
+handler.setFormatter(formatter)
+
+# Fügen Sie den Handler zum Logger hinzu
+logger.addHandler(handler)
+
+logger.info("programm start")
 
 # Passwörter und Benutzernamen auslesen
 passdateipfad = "/home/tom/pass.json"
@@ -157,7 +175,7 @@ while True:
     try:
         response = get_data(sid)
     except requests.exceptions.Timeout:
-            print("Timeout: ",time.strftime("%Y-%m-%d %H:%M:%S"))
+            logger.warning("Timeout waiting for 20 sec...")
             time.sleep(20) # 20 sekunden warten wenn ich timout habe und dann nochmal versuchen
             continue
     
@@ -167,12 +185,12 @@ while True:
         if "err" in data:
             error_code = data["err"]
             if error_code == 401: # session id falsch unauthorized
-                print("Unauthorized access. Please check your credentials: ",time.strftime("%Y-%m-%d %H:%M:%S"))
+                logger.warning("unauthorized access -> get_new_session-id()")
                 sid = get_new_session_id()
-                print(sid)
+                logger.info("new_session_id = %s",sid)
                 continue # nächste schleifeniteration wenn ich die richtige sid habe
             elif error_code == 503: # maximale session ids
-                print("No more sessions available: ",time.strftime("%Y-%m-%d %H:%M:%S"))
+                logger.warning("no Sessions available waiting for 1h...")
                 time.sleep(360) # eine Stunde warten, wenn keine Sessions available
                 continue
 
