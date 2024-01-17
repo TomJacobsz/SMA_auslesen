@@ -26,7 +26,7 @@ def insert_data_into_Leistung(time,data):
         record = (time,data[0],data[1],data[2])
         cursor.execute(query, record)
         connection.commit()
-        print("Data successfully inserted")
+        #print("Data successfully inserted")
     except Error as e:
         print("Error while connecting to MariaDB", e)
     finally:
@@ -157,7 +157,7 @@ while True:
     try:
         response = get_data(sid)
     except requests.exceptions.Timeout:
-            print("Timeout")
+            print("Timeout: ",time.strftime("%Y-%m-%d %H:%M:%S"))
             time.sleep(20) # 20 sekunden warten wenn ich timout habe und dann nochmal versuchen
             continue
     
@@ -167,13 +167,14 @@ while True:
         if "err" in data:
             error_code = data["err"]
             if error_code == 401: # session id falsch unauthorized
-                print("Unauthorized access. Please check your credentials.")
+                print("Unauthorized access. Please check your credentials: ",time.strftime("%Y-%m-%d %H:%M:%S"))
                 sid = get_new_session_id()
                 print(sid)
                 continue # nächste schleifeniteration wenn ich die richtige sid habe
             elif error_code == 503: # maximale session ids
-                print("No more sessions available")
-                break
+                print("No more sessions available: ",time.strftime("%Y-%m-%d %H:%M:%S"))
+                time.sleep(360) # eine Stunde warten, wenn keine Sessions available
+                continue
 
     except json.JSONDecodeError:
         print("Fehler beim Parsen der JSON-Antwort")
