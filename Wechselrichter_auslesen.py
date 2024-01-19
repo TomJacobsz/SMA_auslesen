@@ -11,7 +11,34 @@ import logging
 # Warnungen für unsichere HTTPS-Anfragen deaktivieren
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def insert_data_into_Leistung(time,data):
+# Erstellen Sie einen Logger und setzen Sie das Log-Level
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Erstellen Sie einen FileHandler und setzen Sie das Log-Level
+handler = logging.FileHandler('/home/tom/projekt/logfile.log')
+handler.setLevel(logging.INFO)
+
+# Erstellen Sie einen Formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Fügen Sie den Formatter zum Handler hinzu
+handler.setFormatter(formatter)
+
+# Fügen Sie den Handler zum Logger hinzu
+logger.addHandler(handler)
+
+logger.info("programm start")
+
+# Passwörter und Benutzernamen auslesen
+passdateipfad = "/home/tom/pass.json"
+
+# Öffnen und Lesen der JSON-Datei
+with open(passdateipfad, 'r') as f:
+    passdata = json.load(f)
+
+
+def insert_data_into_Leistung_database(time,data):
     if data[2] == None: 
         data[2] = 0
     try:
@@ -36,7 +63,7 @@ def insert_data_into_Leistung(time,data):
             #print("MariaDB connection is closed")
 
 
-def insert_data_into_Arbeit(time,data):
+def insert_data_into_Arbeit_database(time,data):
     try:
         connection = mysql.connector.connect(
             host ='dbtommi',        # z.B. 'localhost'
@@ -60,7 +87,7 @@ def insert_data_into_Arbeit(time,data):
             #print("MariaDB connection is closed")
 
 
-def insert_data_into_Shelly(time,Watt,Wattstunden):
+def insert_data_into_Shelly_database(time,Watt,Wattstunden):
     try:
         connection = mysql.connector.connect(
             host = 'dbtommi',        # z.B. 'localhost'
@@ -135,31 +162,6 @@ def get_data(sid):
     response = requests.post(url, headers=headers, cookies=cookies, data=data, verify=False,timeout=30)# timeout 30 ausprobieren
     return response
 
-# Erstellen Sie einen Logger und setzen Sie das Log-Level
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# Erstellen Sie einen FileHandler und setzen Sie das Log-Level
-handler = logging.FileHandler('/pfad/zur/logfile/logfile.log')
-handler.setLevel(logging.INFO)
-
-# Erstellen Sie einen Formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# Fügen Sie den Formatter zum Handler hinzu
-handler.setFormatter(formatter)
-
-# Fügen Sie den Handler zum Logger hinzu
-logger.addHandler(handler)
-
-logger.info("programm start")
-
-# Passwörter und Benutzernamen auslesen
-passdateipfad = "/home/tom/pass.json"
-
-# Öffnen und Lesen der JSON-Datei
-with open(passdateipfad, 'r') as f:
-    passdata = json.load(f)
 
 # Initialer random SID-Wert 
 sid = "PFJo4AT0AyK0SCjt"
@@ -170,11 +172,12 @@ Wattstunden = float(read_database("SELECT Wattstunden FROM Shelly ORDER BY Zeit 
 
 while True:
     start_time = time.time() # startzeit messen 
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # exception handling für timeout
+    # Wechselrichter API abfragen:
     try:
         response = get_data(sid)
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout: # exception handling für timeout
             logger.warning("Timeout waiting for 20 sec...")
             time.sleep(20) # 20 sekunden warten wenn ich timout habe und dann nochmal versuchen
             continue
@@ -198,6 +201,17 @@ while True:
         print("Fehler beim Parsen der JSON-Antwort")
         break
     
+    
+    # Shelly API abfragen:
+    username = passdata["Shelly"]["user"]
+    password = passdata["Shelly"]["password"]
+    url = 'http://192.168.0.49/status'
+    Shelly_response = requests.get(url, auth=HTTPBasicAuth(username,password)).json()
+
+    Watt = Shelly_response["total_power"]
+    Wattstunden = Wattstunden + Watt/360
+
+    # Daten aus json ziehen
     aktuelle_Einspeisung = data["result"]["0199-xxxxxA83"]["6100_40463600"]["1"][0]["val"]
     aktueller_Netzbezug = data["result"]["0199-xxxxxA83"]["6100_40463700"]["1"][0]["val"]
     aktueller_Ertrag = data["result"]["0199-xxxxxA83"]["6100_40263F00"]["1"][0]["val"]
@@ -206,28 +220,16 @@ while True:
     total_Netzbezug = data["result"]["0199-xxxxxA83"]["6400_00469200"]["1"][0]["val"]
     total_Einspeisezaehler = data["result"]["0199-xxxxxA83"]["6400_00469100"]["1"][0]["val"]
 
-    # Shelly API abfragen:
-    username = passdata["Shelly"]["user"]
-    password = passdata["Shelly"]["password"]
-    url = 'http://192.168.0.49/status'
-    response = requests.get(url, auth=HTTPBasicAuth(username,password)).json()
-
-    Watt = response["total_power"]
-    #print(Watt)
-    Wattstunden = Wattstunden + Watt/360
-
-
     # Leistungsdaten alle 10 sek in Leistungstable speichern
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    insert_data_into_Shelly(current_time,Watt,Wattstunden)
-    insert_data_into_Leistung(current_time,[aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag])
+    insert_data_into_Shelly_database(current_time,Watt,Wattstunden)
+    insert_data_into_Leistung_database(current_time,[aktuelle_Einspeisung,aktueller_Netzbezug,aktueller_Ertrag])
 
     counter += 1 # Arbeitsdaten einmal pro stunde in ArbeitsTable speichern
     if counter == 360: # 360 = 60 min * 60 sek / 10 sek
-        insert_data_into_Arbeit(current_time,[Gesamtertrag, Tagesertrag, total_Netzbezug, total_Einspeisezaehler])
+        insert_data_into_Arbeit_database(current_time,[Gesamtertrag, Tagesertrag, total_Netzbezug, total_Einspeisezaehler])
         counter = 0
 
-    end_time = time.time() #Endzeit speichern
+    end_time = time.time() # Endzeit speichern
     execution_time = end_time - start_time  # Ausführungszeit berechnen
     time_to_sleep = max(10 - execution_time, 0)  # Berechnen, wie lange noch gewartet werden muss
     time.sleep(time_to_sleep) # Wartezeit time.sleep(5) war nicht genau genug 
