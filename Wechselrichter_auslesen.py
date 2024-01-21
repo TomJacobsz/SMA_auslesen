@@ -178,9 +178,13 @@ while True:
     try:
         response = get_data(sid)
     except requests.exceptions.Timeout: # exception handling für timeout
-            logger.warning("Timeout waiting for 20 sec...")
-            time.sleep(20) # 20 sekunden warten wenn ich timout habe und dann nochmal versuchen
-            continue
+        logger.warning("Timeout waiting for 20 sec...")
+        time.sleep(20) # 20 sekunden warten wenn ich timout habe und dann nochmal versuchen
+        continue
+    except requests.exceptions.ConnectionError:
+        logger.warning("ConnectionError wait for 60 sec...")
+        time.sleep(60)
+        continue
     
     json_out = response.text
     try:
