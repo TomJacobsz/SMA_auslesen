@@ -200,6 +200,9 @@ while True:
                 logger.warning("no Sessions available waiting for 1h...")
                 time.sleep(360) # eine Stunde warten, wenn keine Sessions available
                 continue
+            else:
+                logger.error("Fehlercode %s",error_code)
+                time.sleep(360)
 
     except json.JSONDecodeError:
         print("Fehler beim Parsen der JSON-Antwort")
@@ -237,3 +240,5 @@ while True:
     execution_time = end_time - start_time  # Ausführungszeit berechnen
     time_to_sleep = max(10 - execution_time, 0)  # Berechnen, wie lange noch gewartet werden muss
     time.sleep(time_to_sleep) # Wartezeit time.sleep(5) war nicht genau genug 
+
+# TODO es gibt einen logout-reiter https://github.com/Dymerz/SMA-SunnyBoy/tree/develop
