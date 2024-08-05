@@ -1,11 +1,10 @@
 # Wechselrichter_auslesen (SMA Sunnyboy 5.0)
 
 ## Grundidee:
-Das folgende Python Skript liest die Leistungs und Verbrauchsdaten des Wechselrichters unserer PV-Anlage. Grundidee dieses Projektes war es, die Stromkosten unseres Elektroautos berechnen zu können. Hierfür muss man natürlich wissen wie hoch der Solarstromanteil bei der in das Auto eingespeisten Energie ist. Also wurde ein Strommesser (Shelly 3em) istalliert, um differenzieren zu können, wann genau das Auto lädt.
+Das folgende Python-Skript liest die Leistungs und Verbrauchsdaten des Wechselrichters unserer PV-Anlage aus. Grundidee dieses Projektes war es, die Stromkosten unseres Elektroautos berechnen zu können. Hierfür muss man natürlich wissen wie hoch der Solarstromanteil bei der in das Auto eingespeisten Energie ist. Also wurde ein Strommesser (Shelly 3em) installiert, um differenzieren zu können, wann genau das Auto geladen wird.
 
 ## Funktionsweise:
-Das Skript besteht aus mehreren Funktionen und einer Hauptschleife, die die Aufgaben Datenerfassung,
-Datenspeicherung, Fehlerbehandlung und Sitzungsmanagement behandeln. Das Skript läuft auf einem Server, der sich im Heimnetzwerk befindet. 
+Das Skript besteht aus mehreren Funktionen und einer Hauptschleife, die die Aufgaben der Datenerfassung, Datenspeicherung und des Sitzungsmanagements übernehmen, Datenspeicherung, Fehlerbehandlung und Sitzungsverwaltung. Das Skript läuft auf einem Server im lokalen Netzwerk.  
 
 ### Funktionen:
 - **insert_data_into_Leistung_database(time, data):** Fügt Leistungsdaten in die Datenbank ein.
