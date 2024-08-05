@@ -1,4 +1,4 @@
-# SMA_auslesen(Sunnyboy 5.0)
+# Wechselrichter_auslesen (SMA Sunnyboy 5.0)
 
 ## Grundidee:
 Das folgende Python Skript liest die Leistungs und Verbrauchsdaten des Wechselrichters unserer PV-Anlage. Grundidee dieses Projektes war es, die Stromkosten unseres Elektroautos berechnen zu können. Hierfür muss man natürlich wissen wie hoch der Solarstromanteil bei der in das Auto eingespeisten Energie ist. Also wurde ein Strommesser (Shelly 3em) istalliert, um differenzieren zu können, wann genau das Auto lädt.
@@ -26,10 +26,13 @@ Datenspeicherung, Fehlerbehandlung und Sitzungsmanagement behandeln.
 ### Fehlerbehandlung:
 Das Skript verwendet ein Logging-System, um die Fehlersuche erheblich zu vereinfachen. Die Logs werden in der Datei (logfile.log) gespeichert und enthalten Informationen über aufgetretene Fehler.
 
-## Ergebins:
-![Image](/home/tom/Schreibtisch/Figure_1.png)
-
-
+## Ergebnis:
+![image](https://github.com/user-attachments/assets/0c843615-8c3d-430a-ac9c-f1a37124a82e)
+### Graphen Beschreibung:
+(Auflistung von oben nach unten betrachtet)
+1. Der Orangene Plot zeigt den kompletten Netzbezug des Hauses, also inklusive Ladezüglen der Autos. Der Blaue zeigt den reinen Hausverbrauch, da hier die Datenpunkte des Shelly Messgerätes abgezogen werden. Zu beachten hierbei ist, dass der Haushalt zusätzlich über ein Hybridfahrzeug verfügt, dessen Ladezüglen noch nicht erfasst werden. Dies ist um den Zeitpunkt 2024-05-04 gut zu erkennen, da der blaue und orangene Graph komplett übereinstimmen.
+2. Dieser Plot beschreibt den absoluten Ertrag (grün) und das, was nach abzug des Hausverbrauches(inklusive Hybridfahrzeug) zur Verfügung steht (braun). Also der Überschuss, der im Normalfall in das Netz werden wird.
+3. Hier werden die Ladezüglen des Elektroautos dargestellt. Genauer, das, was vom Netz bezogen werden muss um das Auto zu laden. Also Ladelast - ((Absoluter Ertrag) - Hausverbrauch). Gut zu erkennen ist, dass sich der zu Verfügung stehende Ertrag der Solaranlage aus (2.) und dieser Plot ergänzen, da natürlich bei mehr zur Vergung stehendem Ertrag weniger aus dem Netz bezogen werden muss.
 
 
 
