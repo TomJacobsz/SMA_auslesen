@@ -8,26 +8,16 @@ from requests.auth import HTTPBasicAuth
 from datetime import datetime
 import logging
 
-# Warnungen für unsichere HTTPS-Anfragen deaktivieren
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# Erstellen Sie einen Logger und setzen Sie das Log-Level
+#Logger für Fehlerbehandlung
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-# Erstellen Sie einen FileHandler und setzen Sie das Log-Level
 handler = logging.FileHandler('/home/tom/projekt/logfile.log')
 handler.setLevel(logging.INFO)
-
-# Erstellen Sie einen Formatter
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# Fügen Sie den Formatter zum Handler hinzu
 handler.setFormatter(formatter)
-
-# Fügen Sie den Handler zum Logger hinzu
 logger.addHandler(handler)
-
 logger.info("programm start")
 
 # Passwörter und Benutzernamen auslesen
@@ -90,10 +80,10 @@ def insert_data_into_Arbeit_database(time,data):
 def insert_data_into_Shelly_database(time,Watt,Wattstunden):
     try:
         connection = mysql.connector.connect(
-            host = 'dbtommi',        # z.B. 'localhost'
+            host = 'dbtommi',        
             database = 'PV',
             user = passdata["Datenbank"]["user"],
-            password = passdata["Datenbank"]["password"]) # hier Passwort der Datenbank eingeben
+            password = passdata["Datenbank"]["password"]) 
 
         cursor = connection.cursor()
         query = "INSERT INTO Shelly (Zeit, Watt,Wattstunden) VALUES (%s, %s ,%s)"
@@ -241,4 +231,3 @@ while True:
     time_to_sleep = max(10 - execution_time, 0)  # Berechnen, wie lange noch gewartet werden muss
     time.sleep(time_to_sleep) # Wartezeit time.sleep(5) war nicht genau genug 
 
-# TODO es gibt einen logout-reiter https://github.com/Dymerz/SMA-SunnyBoy/tree/develop
