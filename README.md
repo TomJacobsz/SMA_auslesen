@@ -5,7 +5,7 @@ Das folgende Python Skript liest die Leistungs und Verbrauchsdaten des Wechselri
 
 ## Funktionsweise:
 Das Skript besteht aus mehreren Funktionen und einer Hauptschleife, die die Aufgaben Datenerfassung,
-Datenspeicherung, Fehlerbehandlung und Sitzungsmanagement behandeln. 
+Datenspeicherung, Fehlerbehandlung und Sitzungsmanagement behandeln. Das Skript läuft auf einem Server, der sich im Heimnetzwerk befindet. 
 
 ### Funktionen:
 - **insert_data_into_Leistung_database(time, data):** Fügt Leistungsdaten in die Datenbank ein.
