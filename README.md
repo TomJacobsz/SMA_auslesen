@@ -26,6 +26,11 @@ Datenspeicherung, Fehlerbehandlung und Sitzungsmanagement behandeln.
 ### Fehlerbehandlung:
 Das Skript verwendet ein Logging-System, um die Fehlersuche erheblich zu vereinfachen. Die Logs werden in der Datei (logfile.log) gespeichert und enthalten Informationen über aufgetretene Fehler.
 
+## Ergebins:
+![Image](/home/tom/Schreibtisch/Figure_1.png)
+
+
+
 
 
 
