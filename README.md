@@ -38,7 +38,9 @@ Der Solarstromanteil des Verbrauchs des Elektroautos in diesem Zeitraum beläuft
 - **Netzbezug_Wh** = Datenpunkte(Netzbezug durch Auto).sum() / 360
 - **Gesamtlast_Wh** = Datenpunkte(Gesamtlast durch das Auto).sum() / 360
 - **Anteil Solarstrom** = (Gesamtlast_Wh - Netzbezug_Wh) / Gesamtlast_Wh * 100
- #durch 360, da alle 10 sek ein Datenpunkt in Watt erzeugt wird also erhalten wir durch diese Rechnung die     Wh dieses Zeitraumes
+  
+
+ durch 360, da alle 10 sek ein Datenpunkt in Watt erzeugt wird also erhalten wir durch diese Rechnung die     Wh dieses Zeitraumes
 
 
 
